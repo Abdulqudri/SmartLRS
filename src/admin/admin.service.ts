@@ -9,7 +9,6 @@ import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
 import { Readable } from 'stream';
 
-
 const unlinkAsync = promisify(unlink);
 
 @Injectable()
@@ -48,12 +47,11 @@ export class AdminService {
       const errors: string[] = [];
       let batch: any[] = [];
       const stream = Readable.from(file.buffer).pipe(csv());
-      console.log('from process funtion file.buffer', file.buffer)
-
+      console.log('from process funtion file.buffer', file.buffer);
 
       stream.on('data', (row) => {
         console.log(row);
-        
+
         batch.push(row);
         if (batch.length >= batchSize) {
           stream.pause();
@@ -95,9 +93,9 @@ export class AdminService {
   }
   async uploadCourses(file: Express.Multer.File): Promise<void> {
     console.log('Uploaded file:', file);
-if (!file || !file.path) {
-  throw new BadRequestException('File path is missing.');
-}
+    if (!file) {
+      throw new BadRequestException('File path is missing.');
+    }
 
     const batchSize = 50;
     const errors = await this.processCsvInBatches(
@@ -105,7 +103,13 @@ if (!file || !file.path) {
       batchSize,
       async (row: any) => {
         // Validate required fields
-        if (!row.code || !row.name || !row.lecturerId || !row.numberOfStudents || !row.duration) {
+        if (
+          !row.code ||
+          !row.name ||
+          !row.lecturerId ||
+          !row.numberOfStudents ||
+          !row.duration
+        ) {
           throw new Error('Missing required fields.');
         }
         const numberOfStudents = parseInt(row.numberOfStudents, 10);
@@ -135,9 +139,9 @@ if (!file || !file.path) {
 
   async uploadRooms(file: Express.Multer.File): Promise<void> {
     console.log('Uploaded file:', file);
-if (!file) {
-  throw new BadRequestException('File path is missing.');
-}
+    if (!file) {
+      throw new BadRequestException('File path is missing.');
+    }
 
     const batchSize = 50;
     const errors = await this.processCsvInBatches(
@@ -170,9 +174,9 @@ if (!file) {
 
   async uploadLecturerAvailability(file: Express.Multer.File): Promise<void> {
     console.log('Uploaded file:', file);
-if (!file || !file.path) {
-  throw new BadRequestException('File path is missing.');
-}
+    if (!file) {
+      throw new BadRequestException('File path is missing.');
+    }
 
     const batchSize = 50;
     const errors = await this.processCsvInBatches(
@@ -182,7 +186,10 @@ if (!file || !file.path) {
         if (!row.day || !row.startTime || !row.endTime || !row.lecturerId) {
           throw new Error('Missing required fields.');
         }
-        let timeslot = await this.timeslotsService.findByDayAndTime(row.day, row.startTime);
+        let timeslot = await this.timeslotsService.findByDayAndTime(
+          row.day,
+          row.startTime,
+        );
         if (!timeslot) {
           timeslot = await this.timeslotsService.create({
             day: row.day,
@@ -196,7 +203,10 @@ if (!file || !file.path) {
             (user.availableTimeslots || []).map((id: any) => id.toString()),
           );
           updatedTimeslots.add(timeslot._id.toString());
-          await this.usersService.updateAvailability(row.lecturerId, Array.from(updatedTimeslots));
+          await this.usersService.updateAvailability(
+            row.lecturerId,
+            Array.from(updatedTimeslots),
+          );
         }
       },
     );
@@ -208,9 +218,9 @@ if (!file || !file.path) {
 
   async uploadUser(file: Express.Multer.File): Promise<void> {
     console.log('Uploaded file:', file);
-if (!file) {
-  throw new BadRequestException('File path is missing.');
-}
+    if (!file) {
+      throw new BadRequestException('File path is missing.');
+    }
 
     const batchSize = 50;
     const errors = await this.processCsvInBatches(
@@ -234,7 +244,6 @@ if (!file) {
         });
       },
     );
-    await this.cleanupFile(file.path);
     if (errors.length) {
       throw new BadRequestException(errors.join('; '));
     }
