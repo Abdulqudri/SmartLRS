@@ -1,10 +1,16 @@
-import { Controller, Post, UseGuards, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
+import { Controller, Post, UseGuards, UseInterceptors, UploadedFile, BadRequestException, UseFilters } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AdminService } from './admin.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from 'src/auth/roles.guard';
+import { MulterOptions } from '@nestjs/platform-express/multer/interfaces/multer-options.interface';
+import { FileSizeExceptionFilter } from './file-size.exception';
 
+
+export const multerConfig: MulterOptions = {
+  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB file limit
+};
 
 
 @Controller('admin')
@@ -14,7 +20,8 @@ export class AdminController {
   constructor(private adminService: AdminService) {}
 
   @Post('upload-courses')
-  @UseInterceptors(FileInterceptor('users'))
+  @UseFilters(new FileSizeExceptionFilter())
+  @UseInterceptors(FileInterceptor('file', multerConfig))
   async uploadCourses(@UploadedFile() file: Express.Multer.File) {
     console.log('Received file:', file);
   if (!file) {
@@ -25,7 +32,8 @@ export class AdminController {
   }
 
   @Post('upload-rooms')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseFilters(new FileSizeExceptionFilter())
+  @UseInterceptors(FileInterceptor('file', multerConfig))
   async uploadRooms(@UploadedFile() file: Express.Multer.File) {
     console.log('Received file:', file);
   if (!file) {
@@ -36,7 +44,8 @@ export class AdminController {
   }
 
   @Post('upload-lecturer-availability')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseFilters(new FileSizeExceptionFilter())
+  @UseInterceptors(FileInterceptor('file', multerConfig))
   async uploadLecturerAvailability(@UploadedFile() file: Express.Multer.File) {
     console.log('Received file:', file);
   if (!file) {
@@ -46,7 +55,8 @@ export class AdminController {
     return { message: 'Lecturer availability uploaded successfully' };
   }
   @Post('upload-users')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseFilters(new FileSizeExceptionFilter())
+  @UseInterceptors(FileInterceptor('file', multerConfig))
   async uploadUsers(@UploadedFile() file: Express.Multer.File) {
     console.log('Received file:', file);
   if (!file) {
