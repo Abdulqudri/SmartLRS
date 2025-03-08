@@ -27,7 +27,7 @@ export class UsersService {
         if (!Types.ObjectId.isValid(userId)) {
           throw new BadRequestException('Invalid user ID format');
         }
-      
+        
         // Validate timeslotIds are valid ObjectIds
         const validTimeslotIds = timeslotIds.filter(id => Types.ObjectId.isValid(id));
       
@@ -41,7 +41,7 @@ export class UsersService {
           { $set: { availableTimeslots: validTimeslotIds } },
           { new: true }
         ).exec();
-      
+        
         // Handle case where user is not found
         if (!updatedUser) {
           throw new NotFoundException('User not found');

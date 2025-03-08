@@ -1,4 +1,5 @@
 import { IsString, IsNotEmpty, IsMongoId } from 'class-validator';
+import { Types } from 'mongoose';
 
 export class CreateCourseDto {
   @IsNotEmpty()
@@ -11,7 +12,7 @@ export class CreateCourseDto {
 
   @IsNotEmpty()
   @IsMongoId({ message: 'Lecturer ID must be a valid MongoDB ObjectId' }) // Ensures valid ObjectId
-  lecturerId: string; // References User _id
+  lecturerId: Types.ObjectId; // References User _id
 
   @IsNotEmpty()
   numberOfStudents: number;

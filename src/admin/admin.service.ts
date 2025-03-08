@@ -1,6 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import * as csv from 'csv-parser';
-import { unlink } from 'fs';
 import { promisify } from 'util';
 import { CoursesService } from 'src/courses/courses.service';
 import { RoomsService } from 'src/rooms/rooms.service';
@@ -9,7 +8,6 @@ import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
 import { Readable } from 'stream';
 
-const unlinkAsync = promisify(unlink);
 
 @Injectable()
 export class AdminService {
@@ -20,16 +18,7 @@ export class AdminService {
     private usersService: UsersService,
   ) {}
 
-  /**
-   * Deletes the file after processing.
-   */
-  private async cleanupFile(filePath: string): Promise<void> {
-    try {
-      await unlinkAsync(filePath);
-    } catch (error) {
-      console.warn(`Failed to delete file ${filePath}: ${error.message}`);
-    }
-  }
+  
 
   /**
    * Process CSV rows in batches.
@@ -92,7 +81,6 @@ export class AdminService {
     });
   }
   async uploadCourses(file: Express.Multer.File): Promise<void> {
-    console.log('Uploaded file:', file);
     if (!file) {
       throw new BadRequestException('File path is missing.');
     }
@@ -122,23 +110,23 @@ export class AdminService {
           console.warn(`Skipping duplicate course: ${row.code}`);
           return;
         }
+        const lecturer = await this.usersService.findOneByUserId(row.lecturerId);
+        if(!lecturer || lecturer.role !== 'lecturer'){
+          throw new Error('Invalid lecturer Id')
+        }
+
         await this.coursesService.create({
           code: row.code,
           name: row.name,
-          lecturerId: row.lecturerId,
+          lecturerId: lecturer._id,
           numberOfStudents,
           duration,
         });
       },
     );
-    await this.cleanupFile(file.path);
-    if (errors.length) {
-      throw new BadRequestException(errors.join('; '));
-    }
   }
 
   async uploadRooms(file: Express.Multer.File): Promise<void> {
-    console.log('Uploaded file:', file);
     if (!file) {
       throw new BadRequestException('File path is missing.');
     }
@@ -166,14 +154,9 @@ export class AdminService {
         });
       },
     );
-    await this.cleanupFile(file.path);
-    if (errors.length) {
-      throw new BadRequestException(errors.join('; '));
-    }
   }
 
   async uploadLecturerAvailability(file: Express.Multer.File): Promise<void> {
-    console.log('Uploaded file:', file);
     if (!file) {
       throw new BadRequestException('File path is missing.');
     }
@@ -198,22 +181,20 @@ export class AdminService {
           });
         }
         const user = await this.usersService.findOneByUserId(row.lecturerId);
-        if (user) {
+        if (user && user.role == 'lecturer') {
           const updatedTimeslots = new Set(
             (user.availableTimeslots || []).map((id: any) => id.toString()),
           );
           updatedTimeslots.add(timeslot._id.toString());
+
           await this.usersService.updateAvailability(
-            row.lecturerId,
+            user._id.toString(),
             Array.from(updatedTimeslots),
           );
         }
       },
     );
-    await this.cleanupFile(file.path);
-    if (errors.length) {
-      throw new BadRequestException(errors.join('; '));
-    }
+    
   }
 
   async uploadUser(file: Express.Multer.File): Promise<void> {
@@ -234,7 +215,10 @@ export class AdminService {
           console.warn(`Skipping duplicate user: ${row.userId}`);
           return;
         }
+
+        //hash the user id as the default password
         const hashedPassword = await bcrypt.hash(row.userId, 10);
+
         await this.usersService.create({
           name: row.name,
           email: row.email,
@@ -244,8 +228,6 @@ export class AdminService {
         });
       },
     );
-    if (errors.length) {
-      throw new BadRequestException(errors.join('; '));
-    }
+    
   }
 }

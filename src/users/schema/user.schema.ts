@@ -10,6 +10,8 @@ export enum UserRole {
 @Schema()
 export class User extends Document {
 
+  _id: Types.ObjectId;
+
   @Prop({required: false, unique: true})
   userId: string
 
