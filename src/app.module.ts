@@ -11,6 +11,7 @@ import { EnrollmentsModule } from './enrollments/enrollments.module';
 import { FeedbackModule } from './feedback/feedback.module';
 import { RefreshTokensModule } from './refresh-tokens/refresh-tokens.module';
 import { AdminModule } from './admin/admin.module';
+import { ScheduleGenerationModule } from './schedule-generation/schedule-generation.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { AdminModule } from './admin/admin.module';
     FeedbackModule,
     RefreshTokensModule,
     AdminModule,
+    ScheduleGenerationModule,
   ]
 })
 export class AppModule {}

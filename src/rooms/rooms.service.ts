@@ -12,7 +12,9 @@ export class RoomsService {
     const room = new this.roomModel(roomData);
     return room.save();
   }
-
+  async findAll() {
+    return await this.roomModel.find().exec()
+  }
   async findOneByName(name: string): Promise<Room | null> {
     const room = await this.roomModel.findOne({name})
     return room;

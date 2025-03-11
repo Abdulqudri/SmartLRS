@@ -11,6 +11,10 @@ export class TimeslotsService {
         private timeslotModel: Model<Timeslot>
     ){}
 
+    async findAll() {
+        return await this.timeslotModel.find().exec();
+    }
+
     async create(timeslot: CreateTimeslotDto) : Promise<Timeslot> {
         const newTimeslot = new this.timeslotModel(timeslot)
         return await newTimeslot.save()

@@ -49,4 +49,10 @@ export class UsersService {
       
         return updatedUser;
     }
+    async findAll () {
+      return await this.userModel.find().exec();
+    }
+    async findAllLecturers () {
+      return await this.userModel.find({role: 'lecturer'})
+    }
 }

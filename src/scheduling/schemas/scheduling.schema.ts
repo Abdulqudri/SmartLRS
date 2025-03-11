@@ -4,10 +4,8 @@ import { Course } from 'src/courses/schema/course.schema';
 import { Room } from 'src/rooms/schemas/room.schema';
 import { Timeslot } from 'src/timeslots/schemas/timeslot.schema';
 
-export type ScheduleDocument = Schedule & Document;
-
 @Schema()
-export class Schedule {
+export class Schedule extends Document {
   @Prop({ type: Types.ObjectId, ref: Course.name, required: true })
   courseId: Types.ObjectId;
 

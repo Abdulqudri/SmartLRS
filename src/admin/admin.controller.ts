@@ -6,6 +6,7 @@ import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { MulterOptions } from '@nestjs/platform-express/multer/interfaces/multer-options.interface';
 import { FileSizeExceptionFilter } from './file-size.exception';
+import { ScheduleGenerationService } from 'src/schedule-generation/schedule-generation.service';
 
 
 export const multerConfig: MulterOptions = {
@@ -17,7 +18,10 @@ export const multerConfig: MulterOptions = {
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('admin')
 export class AdminController {
-  constructor(private adminService: AdminService) {}
+  constructor(
+    private adminService: AdminService,
+    private scheduleGenerationService: ScheduleGenerationService
+  ) {}
 
   @Post('upload-courses')
   @UseFilters(new FileSizeExceptionFilter())
@@ -64,5 +68,10 @@ export class AdminController {
   }
     await this.adminService.uploadUser(file);
     return { message: 'Users uploaded successfully' };
+  }
+  @Post('generate-timetable')
+  async generateTimetable() {
+    await this.scheduleGenerationService.generateTimetable();
+    return { message: 'Timetable generated successfully' };
   }
 }
