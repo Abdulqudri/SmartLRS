@@ -8,16 +8,16 @@ import { CreateCourseDto } from './dto/create-course.dto';
 export class CoursesService {
   constructor(@InjectModel(Course.name) private courseModel: Model<Course>) {}
 
-  async create(course: CreateCourseDto) : Promise<Course> {
+  async create(course: CreateCourseDto): Promise<Course> {
     const newCourse = new this.courseModel(course);
-    return await newCourse.save()
+    return await newCourse.save();
   }
 
   async findOneByCode(code: string): Promise<Course | null> {
-    const course = await this.courseModel.findOne({code})
+    const course = await this.courseModel.findOne({ code });
     return course;
   }
-  async findAll() {
+  async findAll(): Promise<Course[]> {
     return await this.courseModel.find().exec();
   }
 }

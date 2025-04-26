@@ -12,6 +12,7 @@ import { FeedbackModule } from './feedback/feedback.module';
 import { RefreshTokensModule } from './refresh-tokens/refresh-tokens.module';
 import { AdminModule } from './admin/admin.module';
 import { ScheduleGenerationModule } from './schedule-generation/schedule-generation.module';
+import { LecturerModule } from './lecturer/lecturer.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { ScheduleGenerationModule } from './schedule-generation/schedule-generat
     RefreshTokensModule,
     AdminModule,
     ScheduleGenerationModule,
+    LecturerModule,
   ]
 })
 export class AppModule {}

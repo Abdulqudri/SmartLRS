@@ -6,6 +6,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
   imports: [
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
+      // eslint-disable-next-line @typescript-eslint/require-await
       useFactory: async (config: ConfigService) => ({
         uri: config.get<string>('MONGODB_URI'),
       }),

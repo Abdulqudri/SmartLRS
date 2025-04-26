@@ -1,4 +1,10 @@
-import { IsString, IsNotEmpty, IsMongoId } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsMongoId,
+  IsNumber,
+  Min,
+} from 'class-validator';
 import { Types } from 'mongoose';
 
 export class CreateCourseDto {
@@ -15,8 +21,12 @@ export class CreateCourseDto {
   lecturerId: Types.ObjectId; // References User _id
 
   @IsNotEmpty()
+  @IsNumber()
+  @Min(1, { message: 'Number of students must be at least 1' })
   numberOfStudents: number;
 
   @IsNotEmpty()
+  @IsNumber()
+  @Min(1, { message: 'Duration must be at least 1 hour' })
   duration: number; // Duration in hours
 }

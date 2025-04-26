@@ -5,6 +5,8 @@ export type CourseDocument = Course & Document;
 
 @Schema()
 export class Course {
+  _id: Types.ObjectId;
+
   @Prop({ required: true, unique: true })
   code: string; // e.g., "CS101"
 

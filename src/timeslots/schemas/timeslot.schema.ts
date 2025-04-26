@@ -1,20 +1,18 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 
-
 @Schema()
 export class Timeslot extends Document {
-
   _id: Types.ObjectId;
 
   @Prop({ required: true })
-  day: string; // e.g., "Monday"
+  day: string;
 
   @Prop({ required: true })
-  startTime: string; // e.g., "08:00"
+  startTime: string;
 
   @Prop({ required: true })
-  endTime: string; // e.g., "10:00"
+  endTime: string;
 }
 
 export const TimeslotSchema = SchemaFactory.createForClass(Timeslot);

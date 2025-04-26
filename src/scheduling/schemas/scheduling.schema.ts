@@ -12,8 +12,9 @@ export class Schedule extends Document {
   @Prop({ type: Types.ObjectId, ref: Room.name, required: true })
   roomId: Types.ObjectId;
 
-  @Prop({ type: String, ref: Timeslot.name, required: true })
+  @Prop({ type: Types.ObjectId, ref: Timeslot.name, required: true }) // Changed to Number
   timeslotId: Types.ObjectId;
 }
 
 export const ScheduleSchema = SchemaFactory.createForClass(Schedule);
+export type Scheduling = Omit<Schedule, keyof Document>;

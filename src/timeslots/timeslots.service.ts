@@ -1,26 +1,92 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Timeslot } from './schemas/timeslot.schema';
-import { Model } from 'mongoose';
-import { CreateTimeslotDto } from './dtos/creaate-timeslot.dto';
+import { Model, Types } from 'mongoose';
+import { CreateTimeslotDto } from './dtos/create-timeslot.dto';
 
 @Injectable()
 export class TimeslotsService {
-    constructor(
-        @InjectModel(Timeslot.name)
-        private timeslotModel: Model<Timeslot>
-    ){}
+  constructor(
+    @InjectModel(Timeslot.name)
+    private timeslotModel: Model<Timeslot>,
+  ) {}
 
-    async findAll() {
-        return await this.timeslotModel.find().exec();
+  async findAll(): Promise<Timeslot[]> {
+    const timeslots = await this.timeslotModel.find().lean().exec();
+
+    const dayOrder: { [key: string]: number } = {
+      monday: 1,
+      tuesday: 2,
+      wednesday: 3,
+      thursday: 4,
+      friday: 5,
+      saturday: 6,
+    };
+
+    return timeslots
+      .map((timeslot) => ({
+        ...timeslot,
+        id: timeslot._id.toString(),
+      }))
+      .sort((a, b) => {
+        const dayAValue = dayOrder[a.day] ?? 0;
+        const dayBValue = dayOrder[b.day] ?? 0;
+        return dayAValue - dayBValue || a.startTime.localeCompare(b.startTime);
+      });
+  }
+
+  async validateTimeslotIds(ids: string[]): Promise<boolean[]> {
+    const objectIds = ids
+      .map((id) => {
+        try {
+          return new Types.ObjectId(id);
+        } catch {
+          return null; // or undefined, or a special "invalid" value
+        }
+      })
+      .filter((id) => id !== null); //remove null
+
+    const existingTimeslots = await this.timeslotModel
+      .find({
+        _id: { $in: objectIds },
+      })
+      .lean()
+      .exec();
+
+    const existingIds = new Set(existingTimeslots.map((t) => t._id.toString()));
+    return ids.map((id) => existingIds.has(id));
+  }
+
+  async create(timeslot: CreateTimeslotDto): Promise<Timeslot> {
+    const newTimeslot = new this.timeslotModel(timeslot);
+    const saved = await newTimeslot.save();
+    return saved;
+  }
+
+  async findByDayAndTime(
+    day: string,
+    startTime: string,
+  ): Promise<Timeslot | null> {
+    const timeslot = await this.timeslotModel
+      .findOne({
+        day: day.toLowerCase(),
+        startTime,
+      })
+      .lean()
+      .exec();
+
+    if (!timeslot) {
+      return null;
     }
 
-    async create(timeslot: CreateTimeslotDto) : Promise<Timeslot> {
-        const newTimeslot = new this.timeslotModel(timeslot)
-        return await newTimeslot.save()
-    }
+    return timeslot;
+  }
 
-    async findByDayAndTime(day: string, startTime: string): Promise<Timeslot | null> {
-        return this.timeslotModel.findOne({ day, startTime }).exec();
-      }
+  async findByUuid(id: string): Promise<Timeslot | null> {
+    const result = await this.timeslotModel.findById(id).lean().exec(); // Use id
+    if (!result) {
+      return null;
+    }
+    return result;
+  }
 }

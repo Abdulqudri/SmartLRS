@@ -1,11 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Schedule } from './schemas/scheduling.schema'
+import { Schedule } from './schemas/scheduling.schema';
 
 @Injectable()
 export class SchedulesService {
-  constructor(@InjectModel(Schedule.name) private scheduleModel: Model<Schedule>) {}
+  constructor(
+    @InjectModel(Schedule.name) private scheduleModel: Model<Schedule>,
+  ) {}
 
   async create(scheduleData: Partial<Schedule>): Promise<Schedule> {
     const schedule = new this.scheduleModel(scheduleData);
@@ -18,10 +20,13 @@ export class SchedulesService {
   }
 
   async deleteAll(): Promise<void> {
-    await this.scheduleModel.deleteMany({}).exec();
+    await this.scheduleModel.deleteMany().exec();
   }
 
   async findAll(): Promise<Schedule[]> {
-    return this.scheduleModel.find().exec();
+    return this.scheduleModel
+      .find()
+      .populate('courseId roomId timeslotId')
+      .exec();
   }
 }

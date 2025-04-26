@@ -1,4 +1,4 @@
-import { PartialType } from "@nestjs/mapped-types";
-import { CreateTimeslotDto } from "./creaate-timeslot.dto";
+import { PartialType } from '@nestjs/mapped-types';
+import { CreateTimeslotDto } from './create-timeslot.dto';
 
-export class UpdateTimeslotDto extends PartialType(CreateTimeslotDto){}
+export class UpdateTimeslotDto extends PartialType(CreateTimeslotDto) {}

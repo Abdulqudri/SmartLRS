@@ -1,4 +1,12 @@
-import { IsString, IsNotEmpty, IsNumber, IsArray, ArrayUnique, IsOptional, Min } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  IsNumber,
+  IsArray,
+  ArrayUnique,
+  IsOptional,
+  Min,
+} from 'class-validator';
 
 export class CreateRoomDto {
   @IsNotEmpty()

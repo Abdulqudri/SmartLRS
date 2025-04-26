@@ -1,15 +1,12 @@
-import { IsDate, IsString, IsUUID } from "class-validator";
-
+import { IsDate, IsString } from 'class-validator';
 
 export class RefreshTokenDto {
+  @IsString()
+  token: string;
 
-    @IsString()
-    token: string
+  @IsString()
+  userId: string;
 
-    @IsString()
-    userId: string
-
-    @IsDate()
-    expiryDate: Date
-
+  @IsDate()
+  expiryDate: Date;
 }

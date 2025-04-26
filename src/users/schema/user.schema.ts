@@ -9,14 +9,13 @@ export enum UserRole {
 
 @Schema()
 export class User extends Document {
-
   _id: Types.ObjectId;
 
-  @Prop({required: false, unique: true})
-  userId: string
+  @Prop({ required: false, unique: true })
+  userId: string;
 
-  @Prop({required: true})
-  name: string
+  @Prop({ required: true })
+  name: string;
 
   @Prop({ required: true, unique: true })
   email: string;
@@ -28,11 +27,22 @@ export class User extends Document {
   role: UserRole;
 
   @Prop({
-    type: [{ type: Types.ObjectId, ref: 'Timeslot' }],
-    default: undefined, // Ensures it's omitted when not provided
+    type: [String], // Changed to store UUID strings
+    default: undefined,
+    validate: {
+      validator: function (timeslotIds: string[]) {
+        return timeslotIds.every(
+          (id) =>
+            typeof id === 'string' &&
+            /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(
+              id,
+            ),
+        );
+      },
+      message: 'Invalid UUID format for timeslot ID',
+    },
   })
-  availableTimeslots?: Types.ObjectId[];
-  
+  availableTimeslots?: string[]; // Now stores Timeslot UUIDs
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

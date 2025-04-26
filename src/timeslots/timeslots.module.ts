@@ -4,13 +4,15 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Timeslot, TimeslotSchema } from './schemas/timeslot.schema';
 
 @Module({
-  imports: [MongooseModule.forFeature([
-    {
-      name: Timeslot.name,
-      schema: TimeslotSchema
-    }
-  ])],
+  imports: [
+    MongooseModule.forFeature([
+      {
+        name: Timeslot.name,
+        schema: TimeslotSchema,
+      },
+    ]),
+  ],
   providers: [TimeslotsService],
-  exports: [TimeslotsService]
+  exports: [TimeslotsService],
 })
 export class TimeslotsModule {}

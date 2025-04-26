@@ -7,7 +7,13 @@ import { UsersModule } from '../users/users.module';
 import { SchedulingModule } from '../scheduling/scheduling.module';
 
 @Module({
-  imports: [CoursesModule, RoomsModule, TimeslotsModule, UsersModule, SchedulingModule],
+  imports: [
+    CoursesModule,
+    RoomsModule,
+    TimeslotsModule,
+    UsersModule,
+    SchedulingModule,
+  ],
   providers: [ScheduleGenerationService],
   exports: [ScheduleGenerationService],
 })
