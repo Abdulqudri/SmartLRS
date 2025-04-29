@@ -12,6 +12,7 @@ import { Timeslot } from 'src/timeslots/schemas/timeslot.schema';
 import { UserRole } from 'src/users/schema/user.schema';
 import { Room } from 'src/rooms/schemas/room.schema';
 import { Schedule } from 'src/scheduling/schemas/scheduling.schema';
+import { Types } from 'mongoose';
 
 // Define types for CSV row structures to ensure type safety
 type CourseCsvRow = {
@@ -148,8 +149,8 @@ export class AdminService {
           console.warn(`Skipping duplicate course: ${row.code}`);
           return;
         }
-        const lecturer = await this.usersService.findOneByUserId(
-          row.lecturerId,
+        const lecturer = await this.usersService.findOneById(
+          new Types.ObjectId(row.lecturerId),
         );
         if (!lecturer || lecturer.role !== UserRole.LECTURER) {
           throw new Error('Invalid lecturer Id');
@@ -213,7 +214,9 @@ export class AdminService {
           row.startTime,
         );
 
-        const user = await this.usersService.findOneByUserId(row.lecturerId);
+        const user = await this.usersService.findOneById(
+          new Types.ObjectId(row.lecturerId),
+        );
         if (user && user.role === UserRole.LECTURER) {
           const availableTimeslots: string[] =
             user.availableTimeslots?.map((id) => id.toString()) || [];
@@ -255,7 +258,7 @@ export class AdminService {
       if (!row.userId || !row.name || !row.email || !row.role) {
         throw new Error('Missing required fields.');
       }
-      if (await this.usersService.findOneByUserId(row.userId)) {
+      if (await this.usersService.findOneById(new Types.ObjectId(row.userId))) {
         console.warn(`Skipping duplicate user: ${row.userId}`);
         return;
       }

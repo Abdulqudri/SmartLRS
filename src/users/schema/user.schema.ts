@@ -27,7 +27,7 @@ export class User extends Document {
   role: UserRole;
 
   @Prop({
-    type: [String], // Changed to store UUID strings
+    type: [String],
     default: undefined,
     validate: {
       validator: function (timeslotIds: string[]) {
@@ -42,7 +42,7 @@ export class User extends Document {
       message: 'Invalid UUID format for timeslot ID',
     },
   })
-  availableTimeslots?: string[]; // Now stores Timeslot UUIDs
+  availableTimeslots?: string[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

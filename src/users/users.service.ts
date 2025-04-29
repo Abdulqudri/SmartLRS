@@ -26,9 +26,6 @@ export class UsersService {
   async findOneByEmail(email: string): Promise<User | null> {
     return await this.userModel.findOne({ email }).exec();
   }
-  async findOneByUserId(userId: string): Promise<User | null> {
-    return await this.userModel.findOne({ userId }).exec();
-  }
   // users.service.ts
   async updateAvailability(
     userId: string,
