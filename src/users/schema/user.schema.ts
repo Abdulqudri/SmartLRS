@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
+import { Timeslot } from 'src/timeslots/schemas/timeslot.schema';
 
 export enum UserRole {
   ADMIN = 'admin',
@@ -27,22 +28,12 @@ export class User extends Document {
   role: UserRole;
 
   @Prop({
-    type: [String],
+    type: [Types.ObjectId],
+    ref: Timeslot.name,
     default: undefined,
-    validate: {
-      validator: function (timeslotIds: string[]) {
-        return timeslotIds.every(
-          (id) =>
-            typeof id === 'string' &&
-            /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(
-              id,
-            ),
-        );
-      },
-      message: 'Invalid UUID format for timeslot ID',
-    },
+    message: 'Invalid ID format for timeslot ID',
   })
-  availableTimeslots?: string[];
+  availableTimeslots?: Timeslot[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

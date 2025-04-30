@@ -7,7 +7,7 @@ import { Enrollment } from './schemas/enrollment.schema';
 import { CreateEnrollmentDto } from './dtos/create-enrollment.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { UserRole } from 'src/users/schema/user.schema';
+import { User, UserRole } from 'src/users/schema/user.schema';
 import { UsersService } from 'src/users/users.service';
 import { CoursesService } from 'src/courses/courses.service';
 
@@ -44,25 +44,30 @@ export class EnrollmentsService {
         `Courses not found for identifiers: ${missing.join(', ')}`,
       );
     }
-
     // Return array of ObjectIds
     return courses.map((c) => c._id);
   }
 
-  async createEnrollment(data: CreateEnrollmentDto): Promise<Enrollment> {
+  async createEnrollment(
+    currentUser: User,
+    data: CreateEnrollmentDto,
+  ): Promise<Enrollment> {
     try {
-      const currentUser = await this.userService.findOneById(data.userId);
       if (!currentUser || currentUser.role !== UserRole.STUDENT) {
         throw new UnauthorizedException('Unauthorized Access');
       }
 
       const courseIds = await this.validateCourseIdentifiers(data.courses);
+      console.log(courseIds);
+      console.log('userId', currentUser);
 
       const newEnrollment = new this.enrollmentModel({
-        userId: currentUser._id,
+        userId: currentUser.userId,
         courses: courseIds,
       });
+      console.log(newEnrollment);
       const savedEnrollment = await newEnrollment.save();
+      console.log(savedEnrollment);
       // Increment numberOfStudents on each course
       await this.courseService.incrementStudentCounts(courseIds, 1);
       return savedEnrollment;
@@ -70,5 +75,16 @@ export class EnrollmentsService {
       if (error instanceof UnauthorizedException) throw error;
       throw new BadRequestException(error);
     }
+  }
+  async getEnrolledCourses(user: User) {
+    if (!user || user.role !== UserRole.STUDENT) {
+      throw new UnauthorizedException('Unauthorized Access');
+    }
+    console.log(user);
+    const courses = await this.enrollmentModel
+      .find({ userId: user.userId })
+      .populate('courses');
+
+    return courses;
   }
 }

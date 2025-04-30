@@ -57,7 +57,7 @@ export class AuthService {
     const refreshToken = this.jwtService.sign(payload, { expiresIn: '3d' });
     await this.storeUserToken(refreshToken, id);
     return {
-      access_token: this.jwtService.sign(payload, { expiresIn: '15m' }),
+      access_token: this.jwtService.sign(payload, { expiresIn: '3d' }),
     };
   }
 

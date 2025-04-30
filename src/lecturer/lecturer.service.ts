@@ -3,10 +3,10 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { time } from 'console';
 import { Types } from 'mongoose';
 import { CreateTimeslotDto } from 'src/timeslots/dtos/create-timeslot.dto';
 import { TimeslotsService } from 'src/timeslots/timeslots.service';
+import { UserRole } from 'src/users/schema/user.schema';
 import { UsersService } from 'src/users/users.service';
 
 @Injectable()
@@ -24,16 +24,19 @@ export class LecturerService {
     if (!timeslot) {
       timeslot = await this.timeslotService.create(data);
     }
-    const user = await this.userService.findOneByUserId(userId.toString());
-    if (!user || (user && user.role !== 'lecturer')) {
+    const user = await this.userService.findOneById(userId);
+    if (!user || (user && user.role !== UserRole.LECTURER)) {
       throw new UnauthorizedException('User not Authorized');
     }
     await this.userService.inputAvailability(
       userId.toString(),
-      timeslot.id.toString(),
+      timeslot._id.toString(),
     );
   }
-  async removeAvailability(userId, data: { day: string; startTime: string }) {
+  async removeAvailability(
+    userId: Types.ObjectId,
+    data: { day: string; startTime: string },
+  ) {
     const timeslot = await this.timeslotService.findByDayAndTime(
       data.day,
       data.startTime,
@@ -42,23 +45,23 @@ export class LecturerService {
     if (!timeslot) {
       throw new BadRequestException('Timeslot not found');
     }
-    const user = await this.userService.findOneByUserId(userId);
-    if (!user || (user && user.role !== 'lecturer')) {
+    const user = await this.userService.findOneById(userId);
+    if (!user || (user && user.role !== UserRole.LECTURER)) {
       throw new UnauthorizedException('User not Authorized');
     }
-    const updatedUserAvailability: string[] =
+    const updatedUserAvailability: Types.ObjectId[] =
       user.availableTimeslots
-        ?.filter((id) => id.toString() !== timeslot.id.toString()) // Filter out unwanted ID
-        .map((id) => id.toString()) || [];
+        ?.filter((id) => id._id !== timeslot._id) // Filter out unwanted ID
+        .map((id) => id._id) || [];
     console.log(updatedUserAvailability);
     await this.userService.updateAvailability(userId, updatedUserAvailability);
   }
-  async getAllAvailability(userId) {
+  async getAllAvailability(userId: Types.ObjectId) {
     if (!Types.ObjectId.isValid(userId)) {
       throw new BadRequestException('Invalid user ID format');
     }
     const user = await this.userService.findOneById(userId);
-    if (!user || (user && user.role !== 'lecturer')) {
+    if (!user || (user && user.role !== UserRole.LECTURER)) {
       throw new UnauthorizedException('User not authorized');
     }
     return await this.userService.getAllAvailability(user._id.toString());

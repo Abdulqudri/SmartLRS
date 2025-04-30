@@ -5,16 +5,15 @@ import { Room } from 'src/rooms/schemas/room.schema';
 import { Timeslot } from 'src/timeslots/schemas/timeslot.schema';
 
 @Schema()
-export class Schedule extends Document {
-  @Prop({ type: Types.ObjectId, ref: Course.name, required: true })
-  courseId: Types.ObjectId;
+export class Scheduling extends Document {
+  @Prop({ required: true, type: Types.ObjectId, ref: Course.name })
+  courseId: Course;
 
-  @Prop({ type: Types.ObjectId, ref: Room.name, required: true })
-  roomId: Types.ObjectId;
+  @Prop({ required: true, type: Types.ObjectId, ref: Room.name })
+  roomId: Room;
 
-  @Prop({ type: Types.ObjectId, ref: Timeslot.name, required: true }) // Changed to Number
-  timeslotId: Types.ObjectId;
+  @Prop({ required: true, type: Types.ObjectId, ref: Timeslot.name })
+  timeslotId: Timeslot;
 }
 
-export const ScheduleSchema = SchemaFactory.createForClass(Schedule);
-export type Scheduling = Omit<Schedule, keyof Document>;
+export const ScheduleSchema = SchemaFactory.createForClass(Scheduling);

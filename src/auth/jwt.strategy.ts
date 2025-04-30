@@ -22,14 +22,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     let userId: Types.ObjectId;
     try {
       userId = new Types.ObjectId(payload.sub);
+      const user = await this.userService.findOneById(userId);
+
+      if (!user) {
+        throw new UnauthorizedException('User no longer exists');
+      }
+      return { userId: userId, email: payload.email, role: payload.role };
     } catch {
       throw new UnauthorizedException('Invalid user ID');
     }
-    const user = await this.userService.findOneById(userId);
-
-    if (!user) {
-      throw new UnauthorizedException('User no longer exists');
-    }
-    return { userId: userId, email: payload.email, role: payload.role };
   }
 }

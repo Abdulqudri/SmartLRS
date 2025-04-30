@@ -5,7 +5,6 @@ import { RoomsService } from '../rooms/rooms.service';
 import { TimeslotsService } from '../timeslots/timeslots.service';
 import { UsersService } from '../users/users.service';
 import { SchedulesService } from '../scheduling/scheduling.service';
-import { Scheduling } from '../scheduling/schemas/scheduling.schema'; // Import the schema
 import { Course } from '../courses/schema/course.schema';
 import { Room } from '../rooms/schemas/room.schema';
 import { Timeslot } from '../timeslots/schemas/timeslot.schema';
@@ -53,6 +52,11 @@ interface PythonSolution {
     timeslotIdString: string;
   }[];
 }
+export interface validSchedule {
+  courseId: Types.ObjectId;
+  roomId: Types.ObjectId;
+  timeslotId: Types.ObjectId;
+}
 
 @Injectable()
 export class ScheduleGenerationService {
@@ -93,7 +97,7 @@ export class ScheduleGenerationService {
         timeslots,
         lecturers,
       );
-      console.log(pythonData)
+      console.log(pythonData);
       const solution = await this.runPythonScript(pythonData);
 
       this.validateSolution(solution);
@@ -142,7 +146,7 @@ export class ScheduleGenerationService {
     return {
       courses: courses.map((course) => ({
         id: course._id.toString(),
-        lecturerId: course.lecturerId?.toString() || '',
+        lecturerId: course.lecturerId?.userId.toString() || '',
         numberOfStudents: course.numberOfStudents,
         duration: course.duration,
       })),
@@ -158,7 +162,8 @@ export class ScheduleGenerationService {
       })),
       lecturer_availability: lecturers.reduce((availability, lecturer) => {
         availability[lecturer._id.toString()] =
-          lecturer.availableTimeslots?.map((slotId) => slotId.toString()) || []; // Ensure string representation
+          lecturer.availableTimeslots?.map((slotId) => slotId._id.toString()) ||
+          []; // Ensure string representation
         return availability;
       }, {} as PythonLecturerAvailability),
       holidays: [],
@@ -220,8 +225,8 @@ export class ScheduleGenerationService {
     courses: Course[],
     rooms: Room[],
     timeslots: Timeslot[],
-  ): Scheduling[] {
-    const validSchedules: Scheduling[] = [];
+  ): validSchedule[] {
+    const validSchedules: validSchedule[] = [];
 
     // Create Maps for efficient lookups
     const courseMap = new Map(

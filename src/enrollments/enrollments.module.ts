@@ -3,6 +3,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Enrollment, EnrollmentSchema } from './schemas/enrollment.schema';
 import { EnrollmentsService } from './enrollments.service';
 import { EnrollmentsController } from './enrollments.controller';
+import { UsersModule } from 'src/users/users.module';
+import { CoursesModule } from 'src/courses/courses.module';
 
 @Module({
   imports: [
@@ -12,9 +14,10 @@ import { EnrollmentsController } from './enrollments.controller';
         schema: EnrollmentSchema,
       },
     ]),
+    UsersModule,
+    CoursesModule,
   ],
   providers: [EnrollmentsService],
   controllers: [EnrollmentsController],
-  exports: [EnrollmentsService],
 })
 export class EnrollmentsModule {}

@@ -35,16 +35,8 @@ export class TimeslotsService {
       });
   }
 
-  async validateTimeslotIds(ids: string[]): Promise<boolean[]> {
-    const objectIds = ids
-      .map((id) => {
-        try {
-          return new Types.ObjectId(id);
-        } catch {
-          return null; // or undefined, or a special "invalid" value
-        }
-      })
-      .filter((id) => id !== null); //remove null
+  async validateTimeslotIds(ids: Types.ObjectId[]): Promise<boolean[]> {
+    const objectIds = ids.filter((id) => id !== null); //remove null
 
     const existingTimeslots = await this.timeslotModel
       .find({
@@ -53,7 +45,7 @@ export class TimeslotsService {
       .lean()
       .exec();
 
-    const existingIds = new Set(existingTimeslots.map((t) => t._id.toString()));
+    const existingIds = new Set(existingTimeslots.map((t) => t._id));
     return ids.map((id) => existingIds.has(id));
   }
 

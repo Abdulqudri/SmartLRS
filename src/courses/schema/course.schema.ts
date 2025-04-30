@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
+import { User } from 'src/users/schema/user.schema';
 
 export type CourseDocument = Course & Document;
 
@@ -13,8 +14,8 @@ export class Course {
   @Prop({ required: true })
   name: string; // e.g., "Introduction to Programming"
 
-  @Prop({ required: true, type: Types.ObjectId, ref: 'User' }) // Reference to User _id
-  lecturerId: Types.ObjectId;
+  @Prop({ required: true, type: Types.ObjectId, ref: User.name }) // Reference to User _id
+  lecturerId: User;
 
   @Prop({ required: true, default: 0 })
   numberOfStudents: number;

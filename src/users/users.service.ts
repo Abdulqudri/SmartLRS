@@ -28,18 +28,12 @@ export class UsersService {
   }
   // users.service.ts
   async updateAvailability(
-    userId: string,
-    timeslotIds: string[], // These are UUID strings from TimeslotResponse
+    userId: Types.ObjectId,
+    timeslotIds: Types.ObjectId[],
   ): Promise<User> {
-    // Validate user ID format
-    if (!Types.ObjectId.isValid(userId)) {
-      throw new BadRequestException('Invalid user ID format');
-    }
-
     // Validate timeslots exist (new check)
     const validTimeslots =
       await this.timeslotsService.validateTimeslotIds(timeslotIds);
-    console.log(validTimeslots);
     if (validTimeslots.length !== timeslotIds.length) {
       throw new BadRequestException('One or more timeslot IDs are invalid');
     }

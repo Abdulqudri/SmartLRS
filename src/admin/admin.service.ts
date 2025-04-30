@@ -11,7 +11,7 @@ import { ScheduleGenerationService } from 'src/schedule-generation/schedule-gene
 import { Timeslot } from 'src/timeslots/schemas/timeslot.schema';
 import { UserRole } from 'src/users/schema/user.schema';
 import { Room } from 'src/rooms/schemas/room.schema';
-import { Schedule } from 'src/scheduling/schemas/scheduling.schema';
+import { Scheduling } from 'src/scheduling/schemas/scheduling.schema';
 import { Types } from 'mongoose';
 
 // Define types for CSV row structures to ensure type safety
@@ -213,28 +213,28 @@ export class AdminService {
           new Types.ObjectId(row.lecturerId),
         );
         if (user && user.role === UserRole.LECTURER) {
-          const availableTimeslots: string[] =
-            user.availableTimeslots?.map((id) => id.toString()) || [];
+          const availableTimeslots: Types.ObjectId[] =
+            user.availableTimeslots?.map((id) => id._id) || [];
 
           // Use a Set to track existing timeslot IDs for efficient duplicate checking
           const existingTimeslotIds = new Set(availableTimeslots);
 
           // Only add the timeslot if it doesn't already exist
-          let timeslotIdString: string;
+          let timeslotIdString: Types.ObjectId;
           if (timeslot) {
-            timeslotIdString = timeslot._id.toString();
+            timeslotIdString = timeslot._id;
           } else {
             const createdTimeslot = await this.timeslotsService.create({
               day: row.day,
               startTime: row.startTime,
               endTime: row.endTime,
             });
-            timeslotIdString = createdTimeslot._id.toString();
+            timeslotIdString = createdTimeslot._id;
           }
           if (!existingTimeslotIds.has(timeslotIdString)) {
             availableTimeslots.push(timeslotIdString);
             await this.usersService.updateAvailability(
-              user._id.toString(),
+              user._id,
               availableTimeslots,
             );
           }
@@ -322,7 +322,7 @@ export class AdminService {
     return await this.timeslotsService.findAll();
   }
 
-  async getAllTimetable(): Promise<Schedule[]> {
+  async getAllTimetable(): Promise<Scheduling[]> {
     // Consider creating a specific type for the timetable
     return await this.schedulesService.findAll();
   }

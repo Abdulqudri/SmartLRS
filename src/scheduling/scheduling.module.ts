@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
 import { SchedulesService } from './scheduling.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Schedule, ScheduleSchema } from './schemas/scheduling.schema';
+import { Scheduling, ScheduleSchema } from './schemas/scheduling.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       {
-        name: Schedule.name,
+        name: Scheduling.name,
         schema: ScheduleSchema,
       },
     ]),
