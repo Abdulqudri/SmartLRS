@@ -22,11 +22,6 @@ export class CreateCourseDto {
 
   @IsNotEmpty()
   @IsNumber()
-  @Min(1, { message: 'Number of students must be at least 1' })
-  numberOfStudents: number;
-
-  @IsNotEmpty()
-  @IsNumber()
   @Min(1, { message: 'Duration must be at least 1 hour' })
   duration: number; // Duration in hours
 }

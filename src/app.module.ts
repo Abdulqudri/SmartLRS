@@ -32,6 +32,6 @@ import { LecturerModule } from './lecturer/lecturer.module';
     AdminModule,
     ScheduleGenerationModule,
     LecturerModule,
-  ]
+  ],
 })
 export class AppModule {}

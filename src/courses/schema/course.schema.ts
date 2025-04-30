@@ -16,7 +16,7 @@ export class Course {
   @Prop({ required: true, type: Types.ObjectId, ref: 'User' }) // Reference to User _id
   lecturerId: Types.ObjectId;
 
-  @Prop({ required: true })
+  @Prop({ required: true, default: 0 })
   numberOfStudents: number;
 
   @Prop({ required: true })

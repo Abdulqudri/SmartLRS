@@ -9,43 +9,65 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { UserRole } from 'src/users/schema/user.schema';
 import { UsersService } from 'src/users/users.service';
+import { CoursesService } from 'src/courses/courses.service';
 
 @Injectable()
-export class EnrollmentService {
+export class EnrollmentsService {
   constructor(
     @InjectModel(Enrollment.name) private enrollmentModel: Model<Enrollment>,
     private readonly userService: UsersService,
+    private readonly courseService: CoursesService,
   ) {}
-  async createStudentEnrollment(
-    data: CreateEnrollmentDto,
-  ): Promise<Enrollment> {
+
+  private async validateCourseIdentifiers(
+    identifiers: string[],
+  ): Promise<Types.ObjectId[]> {
+    if (!identifiers.length) {
+      throw new BadRequestException('No course identifiers provided');
+    }
+
+    // Batch fetch: any course whose code or name is in identifiers
+    const courses = await this.courseService.findByCodesOrNames(identifiers);
+    console.log('Courses found:', courses);
+
+    // Map found codes/names for quick lookup
+    const foundSet = new Set<string>();
+    courses.forEach((c) => {
+      foundSet.add(c.code);
+      foundSet.add(c.name);
+    });
+
+    // Identify missing identifiers
+    const missing = identifiers.filter((id) => !foundSet.has(id));
+    if (missing.length) {
+      throw new BadRequestException(
+        `Courses not found for identifiers: ${missing.join(', ')}`,
+      );
+    }
+
+    // Return array of ObjectIds
+    return courses.map((c) => c._id);
+  }
+
+  async createEnrollment(data: CreateEnrollmentDto): Promise<Enrollment> {
     try {
       const currentUser = await this.userService.findOneById(data.userId);
-      if (!currentUser || currentUser.role !== UserRole.STUDENT)
+      if (!currentUser || currentUser.role !== UserRole.STUDENT) {
         throw new UnauthorizedException('Unauthorized Access');
+      }
+
+      const courseIds = await this.validateCourseIdentifiers(data.courses);
+
       const newEnrollment = new this.enrollmentModel({
-        userId: currentUser.userId,
-        courses: data.courses,
+        userId: currentUser._id,
+        courses: courseIds,
       });
-      return await newEnrollment.save();
+      const savedEnrollment = await newEnrollment.save();
+      // Increment numberOfStudents on each course
+      await this.courseService.incrementStudentCounts(courseIds, 1);
+      return savedEnrollment;
     } catch (error) {
-      throw new BadRequestException(error);
-    }
-  }
-  async createLecturerEnrollment(
-    data: CreateEnrollmentDto,
-    userId: Types.ObjectId,
-  ): Promise<Enrollment> {
-    try {
-      const currentUser = await this.userService.findOneById(userId);
-      if (!currentUser || currentUser.role !== UserRole.LECTURER)
-        throw new UnauthorizedException('unauthorized access');
-      const newEnrollment = new this.enrollmentModel({
-        userId: currentUser.userId,
-        courses: data.courses,
-      });
-      return await newEnrollment.save();
-    } catch (error) {
+      if (error instanceof UnauthorizedException) throw error;
       throw new BadRequestException(error);
     }
   }

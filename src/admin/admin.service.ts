@@ -140,11 +140,7 @@ export class AdminService {
         ) {
           throw new Error('Missing required fields.');
         }
-        const numberOfStudents = parseInt(row.numberOfStudents, 10);
         const duration = parseInt(row.duration, 10);
-        if (isNaN(numberOfStudents) || isNaN(duration)) {
-          throw new Error('Invalid numeric values.');
-        }
         if (await this.coursesService.findOneByCode(row.code)) {
           console.warn(`Skipping duplicate course: ${row.code}`);
           return;
@@ -160,7 +156,6 @@ export class AdminService {
           code: row.code,
           name: row.name,
           lecturerId: lecturer._id,
-          numberOfStudents,
           duration,
         });
       },
