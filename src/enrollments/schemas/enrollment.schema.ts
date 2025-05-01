@@ -7,11 +7,12 @@ import { User } from 'src/users/schema/user.schema';
 export class Enrollment extends Document {
   _id: Types.ObjectId;
 
-  @Prop({ required: true, type: Types.ObjectId, ref: User.name })
+  @Prop({ required: true, type: Types.ObjectId, index: true, ref: User.name })
   userId: User;
 
-  @Prop({ required: true, type: [Types.ObjectId], ref: Course.name })
-  courses: Course[];
+  @Prop({ required: true, type: Types.ObjectId, index: true, ref: Course.name })
+  course: Course;
 }
 
 export const EnrollmentSchema = SchemaFactory.createForClass(Enrollment);
+EnrollmentSchema.index({ userId: 1, courses: 1 }, { unique: true });

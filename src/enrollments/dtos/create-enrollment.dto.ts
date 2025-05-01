@@ -1,6 +1,7 @@
-import { IsNotEmpty } from 'class-validator';
+import { ArrayNotEmpty, IsArray } from 'class-validator';
 
 export class CreateEnrollmentDto {
-  @IsNotEmpty()
+  @IsArray()
+  @ArrayNotEmpty()
   courses: string[];
 }

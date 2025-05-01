@@ -199,8 +199,9 @@ export class ScheduleGenerationService {
         try {
           const parsedOutput = JSON.parse(output) as PythonSolution;
           resolve(parsedOutput);
-        } catch (parseError: any) {
+        } catch (parseError) {
           this.logger.error(
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             `Failed to parse Python output: ${parseError.message}`,
           );
           reject(new Error('Failed to parse Python script output'));
@@ -269,6 +270,7 @@ export class ScheduleGenerationService {
           timeslotId: timeslot._id, // Use the timeslot._id  which is an ObjectId
         });
       } catch (error: any) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         this.logger.warn(`Failed to process assignment: ${error.message}`);
       }
     }
@@ -280,6 +282,7 @@ export class ScheduleGenerationService {
       this.logger.error(`Timetable generation failed: ${error.message}`);
       throw new BadRequestException(error.message);
     }
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     this.logger.error(`Timetable generation failed: ${error}`);
     throw new BadRequestException('Timetable generation failed');
   }

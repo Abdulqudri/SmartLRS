@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post, UseGuards } from '@nestjs/common';
 import { EnrollmentsService } from './enrollments.service';
 import { CreateEnrollmentDto } from './dtos/create-enrollment.dto';
 import { Roles } from 'src/auth/roles.decorator';
@@ -27,6 +27,17 @@ export class EnrollmentsController {
   @Get('')
   async enrolled(@CurrentUser() user: User) {
     const courses = await this.enrollmentsService.getEnrolledCourses(user);
+    return courses;
+  }
+  @Delete('enroll')
+  async deleteEnrollment(
+    @CurrentUser() user: User,
+    @Body() enrollmentDto: CreateEnrollmentDto,
+  ) {
+    const courses = await this.enrollmentsService.removeEnrollment(
+      enrollmentDto,
+      user,
+    );
     return courses;
   }
 }
